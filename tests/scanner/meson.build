@@ -30,29 +30,31 @@ if cc.get_id() != 'msvc'
   ])
 endif
 
+gitests_inc = include_directories('../../gobject-introspection-tests')
+
 typedef_lib = shared_library('typedef-1.0',
   sources: ['typedefs.c'],
-  include_directories : [configinc, include_directories('..')],
+  include_directories : [configinc, gitests_inc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gobject_dep],
 )
 
 sletter_lib = shared_library('sletter-1.0',
   sources: ['sletter.c'],
-  include_directories : [configinc, include_directories('..')],
+  include_directories : [configinc, gitests_inc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gio_dep],
 )
 
 warnlib_lib = shared_library('warnlib-1.0',
-  sources: ['warnlib.c'],
+  sources: ['../../gobject-introspection-tests/warnlib.c'],
   include_directories : [configinc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gio_dep],
 )
 
 utility_lib = shared_library('utility-1.0',
-  sources: ['utility.c'],
+  sources: ['../../gobject-introspection-tests/utility.c'],
   include_directories : [configinc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gobject_dep],
@@ -60,21 +62,21 @@ utility_lib = shared_library('utility-1.0',
 
 gtkfrob_lib = shared_library('gtkfrob-1.0',
   sources: ['gtkfrob.c'],
-  include_directories : [configinc, include_directories('..')],
+  include_directories : [configinc, gitests_inc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gobject_dep],
 )
 
 gettype_lib = shared_library('gettype-1.0',
   sources: ['gettype.c'],
-  include_directories : [configinc, include_directories('..')],
+  include_directories : [configinc, gitests_inc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gobject_dep],
 )
 
 barapp_lib = shared_library('barapp-1.0',
   sources: ['barapp.c'],
-  include_directories : [configinc, include_directories('..')],
+  include_directories : [configinc, gitests_inc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + custom_c_args,
   dependencies: [gobject_dep, girepo_dep],
 )
@@ -92,16 +94,16 @@ if cairo_deps_found
   regress_c_args = []
 else
   regress_deps = []
-  regress_c_args = ['-D_GI_DISABLE_CAIRO']
+  regress_c_args = ['-DGI_TEST_DISABLE_CAIRO']
 endif
 
 regress_lib = shared_library('regress-1.0',
   sources: [
-    'annotation.c',
-    'drawable.c',
-    'foo.c',
-    'regress-unix.c',
-    'regress.c',
+    '../../gobject-introspection-tests/annotation.c',
+    '../../gobject-introspection-tests/drawable.c',
+    '../../gobject-introspection-tests/foo.c',
+    '../../gobject-introspection-tests/regress-unix.c',
+    '../../gobject-introspection-tests/regress.c',
   ],
   include_directories : [configinc, include_directories('..')],
   c_args: gi_hidden_visibility_cflags + regress_c_args + custom_c_args,
@@ -143,6 +145,7 @@ if (glib_dep.type_name() == 'pkgconfig' and
       '-L', meson.current_build_dir(),
       '-I', meson.current_source_dir(),
       '-I', join_paths(meson.current_source_dir(), '..'),
+      '-I', join_paths(source_root, 'gobject-introspection-tests'),
       extra_giscanner_args,
       '@INPUT@',
     ]
@@ -181,6 +184,7 @@ if (glib_dep.type_name() == 'pkgconfig' and
       '-L', join_paths(build_root, 'girepository'),
       '-I', meson.current_source_dir(),
       '-I', join_paths(meson.current_source_dir(), '..'),
+      '-I', join_paths(source_root, 'gobject-introspection-tests'),
       extra_giscanner_args,
       '@INPUT@',
     ]
@@ -218,6 +222,7 @@ if (glib_dep.type_name() == 'pkgconfig' and
       '-L', meson.current_build_dir(),
       '-I', meson.current_source_dir(),
       '-I', join_paths(meson.current_source_dir(), '..'),
+      '-I', join_paths(source_root, 'gobject-introspection-tests'),
       extra_giscanner_args,
       '@INPUT@',
     ]
@@ -233,7 +238,10 @@ if (glib_dep.type_name() == 'pkgconfig' and
   )
 
   warnlib_gir = custom_target('gir-warnlib',
-    input: ['warnlib.c', 'warnlib.h'],
+    input: [
+      '../../gobject-introspection-tests/warnlib.c',
+      '../../gobject-introspection-tests/warnlib.h',
+    ],
     output: 'WarnLib-1.0.gir',
     depends: [warnlib_lib] + typelibs,
     command: [
@@ -268,7 +276,10 @@ if (glib_dep.type_name() == 'pkgconfig' and
   )
 
   utility_gir = custom_target('gir-utility',
-    input: ['utility.c', 'utility.h'],
+    input: [
+      '../../gobject-introspection-tests/utility.c',
+      '../../gobject-introspection-tests/utility.h',
+    ],
     output: 'Utility-1.0.gir',
     depends: [utility_lib] + typelibs,
     command: [
@@ -328,6 +339,7 @@ if (glib_dep.type_name() == 'pkgconfig' and
       '-L', meson.current_build_dir(),
       '-I', meson.current_source_dir(),
       '-I', join_paths(meson.current_source_dir(), '..'),
+      '-I', join_paths(source_root, 'gobject-introspection-tests'),
       extra_giscanner_args,
       '@INPUT@',
     ]
@@ -365,6 +377,7 @@ if (glib_dep.type_name() == 'pkgconfig' and
       '-L', meson.current_build_dir(),
       '-I', meson.current_source_dir(),
       '-I', join_paths(meson.current_source_dir(), '..'),
+      '-I', join_paths(source_root, 'gobject-introspection-tests'),
       extra_giscanner_args,
       '@INPUT@',
     ]
@@ -465,12 +478,20 @@ if (glib_dep.type_name() == 'pkgconfig' and
   if cairo_deps_found
     regress_scanner_cairo_args = ['--include=cairo-1.0']
   else
-    regress_scanner_cairo_args = ['-D_GI_DISABLE_CAIRO',]
+    regress_scanner_cairo_args = ['-DGI_TEST_DISABLE_CAIRO',]
   endif
 
   regress_gir = custom_target('gir-regress',
-    input: ['regress.c', 'regress.h', 'annotation.c', 'annotation.h',
-            'foo.c', 'foo.h', 'drawable.c', 'drawable.h'],
+    input: [
+      '../../gobject-introspection-tests/annotation.c',
+      '../../gobject-introspection-tests/annotation.h',
+      '../../gobject-introspection-tests/drawable.c',
+      '../../gobject-introspection-tests/drawable.h',
+      '../../gobject-introspection-tests/foo.c',
+      '../../gobject-introspection-tests/foo.h',
+      '../../gobject-introspection-tests/regress.c',
+      '../../gobject-introspection-tests/regress.h',
+    ],
     output: 'Regress-1.0.gir',
     depends: [regress_lib] + typelibs + [utility_gir],
     command: [
@@ -513,7 +534,10 @@ if (glib_dep.type_name() == 'pkgconfig' and
 
   if host_system != 'windows'
     regress_unix_gir = custom_target('gir-regress-unix',
-      input: ['regress-unix.c', 'regress-unix.h'],
+      input: [
+        '../../gobject-introspection-tests/regress-unix.c',
+        '../../gobject-introspection-tests/regress-unix.h',
+      ],
       output: 'RegressUnix-1.0.gir',
       depends: [regress_lib] + typelibs + [utility_gir],
       command: [
@@ -587,6 +611,7 @@ if has_girdoctool and glib_dep.type_name() == 'pkgconfig'
       command: [
         python, girdoctool,
         '--add-include-path=' + join_paths(build_root, 'gir'),
+        '--add-include-path=' + join_paths(build_root, 'gobject-introspection-tests'),
         '--add-include-path=' + meson.current_build_dir(),
         '--language', language,
         '--templates-dir=' + join_paths(meson.current_source_dir(), '../../giscanner/doctemplates'),
@@ -615,6 +640,7 @@ if has_girdoctool and glib_dep.type_name() == 'pkgconfig'
     command: [
       python, girdoctool,
       '--add-include-path=' + join_paths(build_root, 'gir'),
+      '--add-include-path=' + join_paths(build_root, 'gobject-introspection-tests'),
       '--add-include-path=' + meson.current_build_dir(),
       '--write-sections-file',
       '@INPUT@', '-o', '@OUTPUT@'],
