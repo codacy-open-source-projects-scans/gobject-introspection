@@ -58,12 +58,13 @@ main(int argc, char **argv)
 
   if (argc != 2 || !g_str_has_prefix (argv[1], introspect_dump_prefix))
     {
-      g_printerr ("Usage: %%s --introspect-dump=input,output", argv[0]);
+      g_printerr ("Usage: %%s --introspect-dump=input,output\\n", argv[0]);
       exit (1);
     }
 
-  if (!dump_irepository (argv[1] + strlen(introspect_dump_prefix), &error))
+  if (!dump_irepository (argv[1] + strlen (introspect_dump_prefix), &error))
     {
+      g_assert (error != NULL);  /* help the static analyser */
       g_printerr ("%%s\\n", error->message);
       exit (1);
     }
