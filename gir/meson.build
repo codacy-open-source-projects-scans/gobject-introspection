@@ -200,20 +200,27 @@ elif dep_type == 'internal'
     '-I' + gio_incdir,
   ]
 
+  fsmod = import('fs')
   # XXX: We need include paths to all glib dependencies too. We assume that the
-  # dependencies are only libffi and proxy-libintl, and that they are used as
-  # subprojects. In the worst case we add paths to non-existent directories.
-  ffi_incdir = join_paths(meson.global_build_root(), subprojdir, 'libffi', 'include')
-  glib_includes += ['-I' + ffi_incdir]
-  intl_incdir = join_paths(meson.global_source_root(), subprojdir, 'proxy-libintl')
-  glib_includes += ['-I' + intl_incdir]
+  # dependencies are only libffi and proxy-libintl.
+  libffi_dep = glib_subproject.get_variable('libffi_dep')
+  if libffi_dep.type_name() == 'internal'
+    libffi_subproject = subproject('libffi')
+    libffi_libdir = fsmod.parent(libffi_subproject.get_variable('ffi_lib').full_path())
+    glib_libpaths += ['-L', libffi_libdir]
+    libffi_incdir = fsmod.parent(libffi_libdir) / 'include'
+    glib_includes += ['-I' + libffi_incdir]
+  endif
 
-  ffi_libdir = join_paths(meson.global_build_root(), subprojdir, 'libffi', 'src')
-  intl_libdir = join_paths(meson.global_build_root(), subprojdir, 'proxy-libintl')
-  glib_libpaths = [
-    '-L' + ffi_libdir,
-    '-L' + intl_libdir,
-  ] + glib_libpaths
+  libintl_dep = glib_subproject.get_variable('libintl')
+  if libintl_dep.type_name() == 'internal'
+    libintl_subproject = subproject('proxy-libintl')
+    libintl_libdir = fsmod.parent(libintl_subproject.get_variable('intl_lib').full_path())
+    glib_libpaths += ['-L', libintl_libdir]
+    libintl_projdir = fsmod.name(libintl_libdir)
+    libintl_incdir = meson.global_source_root() / subprojdir / libintl_projdir
+    glib_includes += ['-I' + libintl_incdir]
+  endif
 
   glib_command += ['--pkg-export=glib-2.0']
   glib_command += glib_libpaths
@@ -224,7 +231,11 @@ else
 endif
 
 foreach h : glib_headers
-  hstr = '@0@'.format(h)
+  if dep_type == 'internal'
+    hstr = h.full_path()
+  else
+    hstr = h
+  endif
   if not hstr.endswith('autocleanups.h')
     glib_files += h
   endif
@@ -300,7 +311,11 @@ else
 endif
 
 foreach h : gobject_headers
-  hstr = '@0@'.format(h)
+  if dep_type == 'internal'
+    hstr = h.full_path()
+  else
+    hstr = h
+  endif
   if not hstr.endswith('autocleanups.h') and not hstr.endswith('glib-types.h') and not hstr.endswith('gvaluecollector.h') and not hstr.endswith('glib-enumtypes.h')
     gobject_files += h
   endif
@@ -421,7 +436,11 @@ else
 endif
 
 foreach h : gio_headers
-  hstr = '@0@'.format(h)
+  if dep_type == 'internal'
+    hstr = h.full_path()
+  else
+    hstr = h
+  endif
   if not hstr.endswith('autocleanups.h')
     gio_files += h
   endif
@@ -447,7 +466,11 @@ if giounix_dep.found()
   # GIO Unix headers must be included explicitly since there is no catch-all
   # header that includes all of them unlike gio/gio.h above
   foreach header : giounix_headers
-    hstr = '@0@'.format(header)
+    if dep_type == 'internal'
+      hstr = h.full_path()
+    else
+      hstr = h
+    endif
     hbase = hstr.split('/')[-1]
     gio_command += '--c-include=gio/@0@'.format(hbase)
   endforeach
