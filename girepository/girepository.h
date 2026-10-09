@@ -95,7 +95,7 @@ typedef enum
 /* Repository */
 
 GI_AVAILABLE_IN_ALL
-GType         g_irepository_get_type      (void) G_GNUC_CONST;
+GType         g_irepository_get_type      (void);
 
 GI_AVAILABLE_IN_ALL
 GIRepository *g_irepository_get_default   (void);

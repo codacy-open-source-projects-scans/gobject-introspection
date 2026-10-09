@@ -51,7 +51,7 @@ typedef struct {
 
 
 GI_AVAILABLE_IN_ALL
-GType                  g_base_info_gtype_get_type   (void) G_GNUC_CONST;
+GType                  g_base_info_gtype_get_type   (void);
 
 GI_AVAILABLE_IN_ALL
 GIBaseInfo *           g_base_info_ref              (GIBaseInfo   *info);
